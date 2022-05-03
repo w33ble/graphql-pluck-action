@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Pluck schema
-        uses: w33ble/gql-pluck-action@main
+        uses: w33ble/graphql-pluck-action@main
         with:
           source: 'src/index.ts'
           output: 'src/schema.graphql'

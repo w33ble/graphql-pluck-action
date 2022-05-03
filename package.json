@@ -21,6 +21,7 @@
     "url": "https://github.com/w33ble/graphql-pluck-action/issues"
   },
   "dependencies": {
+    "@actions/core": "^1.7.0",
     "@graphql-tools/graphql-tag-pluck": "^7.2.6"
   },
   "devDependencies": {
