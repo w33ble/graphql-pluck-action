@@ -1,0 +1,18 @@
+name: 'GraphQL Pluck'
+description: 'Pluck GraphQL schemas from graphql-tag template literals'
+
+inputs:
+  source:
+    description: 'code file with graphql-tag code to pluck'
+    required: true
+  output:
+    description: 'file to write plucked graphql schemas'
+    required: false
+
+outputs:
+  filepath: # id of output
+    description: 'path to the file where the plucked schemas were written'
+
+runs:
+  using: 'node16'
+  main: 'dist/index.js'

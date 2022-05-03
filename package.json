@@ -1,0 +1,36 @@
+{
+  "name": "graphql-pluck-action",
+  "version": "0.0.0",
+  "description": "Extract GraphQL schema from graphql-tag template literals",
+  "private": true,
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest --passWithNoTests --detectOpenHandles",
+    "lint": "eslint --ext .js,.ts '*.{js,ts}' src/",
+    "build": "ncc build src/index.js -o dist",
+    "preversion": "rm -rf dist && yarn build && git add dist && git commit -m 'chore: update the build'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/w33ble/graphql-pluck-action.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/w33ble/graphql-pluck-action/issues"
+  },
+  "dependencies": {
+    "@graphql-tools/graphql-tag-pluck": "^7.2.6"
+  },
+  "devDependencies": {
+    "@zeit/ncc": "^0.22.3",
+    "eslint": "8.14.0",
+    "eslint-config-prettier": "8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^26.1.5",
+    "eslint-plugin-prettier": "4.0.0",
+    "jest": "^28.0.3",
+    "prettier": "2.6.2"
+  }
+}
