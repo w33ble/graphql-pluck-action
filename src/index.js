@@ -1,5 +1,4 @@
 const fs = require('fs').promises;
-const path = require('path');
 const core = require('@actions/core');
 const { gqlPluckFromCodeString } = require('@graphql-tools/graphql-tag-pluck');
 
@@ -7,17 +6,15 @@ async function getContents() {
   const source = core.getInput('source');
   core.debug(`Reading from file ${source}`);
 
-  const filepath = path.resolve(__dirname, `../${source}`);
-  return fs.readFile(filepath, 'utf8');
+  return fs.readFile(source, 'utf8');
 }
 
 async function writeContents(content) {
   const output = core.getInput('output');
   core.info(`Writing to file ${output}`);
 
-  const filepath = path.resolve(__dirname, `../${output}`);
-  await fs.writeFile(filepath, content);
-  return filepath;
+  await fs.writeFile(output, content);
+  return output;
 }
 
 async function main() {

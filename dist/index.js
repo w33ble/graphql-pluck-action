@@ -54512,7 +54512,6 @@ function isIdentifierName(name) {
 /***/ (function(__unusedmodule, __unusedexports, __webpack_require__) {
 
 const fs = __webpack_require__(747).promises;
-const path = __webpack_require__(622);
 const core = __webpack_require__(470);
 const { gqlPluckFromCodeString } = __webpack_require__(680);
 
@@ -54520,17 +54519,15 @@ async function getContents() {
   const source = core.getInput('source');
   core.debug(`Reading from file ${source}`);
 
-  const filepath = path.resolve(__dirname, `../${source}`);
-  return fs.readFile(filepath, 'utf8');
+  return fs.readFile(source, 'utf8');
 }
 
 async function writeContents(content) {
   const output = core.getInput('output');
   core.info(`Writing to file ${output}`);
 
-  const filepath = path.resolve(__dirname, `../${output}`);
-  await fs.writeFile(filepath, content);
-  return filepath;
+  await fs.writeFile(output, content);
+  return output;
 }
 
 async function main() {
