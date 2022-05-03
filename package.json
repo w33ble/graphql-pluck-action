@@ -22,7 +22,8 @@
   },
   "dependencies": {
     "@actions/core": "^1.7.0",
-    "@graphql-tools/graphql-tag-pluck": "^7.2.6"
+    "@graphql-tools/graphql-tag-pluck": "^7.2.6",
+    "graphql": "^16.4.0"
   },
   "devDependencies": {
     "@zeit/ncc": "^0.22.3",
