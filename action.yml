@@ -1,5 +1,8 @@
 name: 'GraphQL Pluck'
 description: 'Pluck GraphQL schemas from graphql-tag template literals'
+branding:
+  icon: 'file-text'
+  color: 'purple'
 
 inputs:
   source:
