@@ -1,4 +1,5 @@
 const fs = require('fs').promises;
+const { dirname } = require('path');
 const core = require('@actions/core');
 const { gqlPluckFromCodeString } = require('@graphql-tools/graphql-tag-pluck');
 
@@ -31,6 +32,7 @@ async function main() {
 
   const output = await writeContents(plucked.body);
   core.setOutput('filepath', output);
+  core.setOutput('filedir', dirname(output));
 }
 
 main().catch((error) => {

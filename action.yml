@@ -10,8 +10,10 @@ inputs:
     required: false
 
 outputs:
-  filepath: # id of output
+  filepath:
     description: 'path to the file where the plucked schemas were written'
+  filedir:
+    description: 'directory to the file where the plucked schemas were written'
 
 runs:
   using: 'node16'

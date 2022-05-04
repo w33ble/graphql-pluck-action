@@ -14,9 +14,13 @@ This action extracts, or plucks, graphql schemas from code that uses `graphql-ta
 
 ## Outputs
 
+### `filedir`
+
+The directory to the file where the plucked schemas were written
+
 ### `filepath`
 
-The path to the file containing the GraphQL schema.
+The path to the file where the plucked schemas were written
 
 ## Example usage
 
