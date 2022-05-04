@@ -21,8 +21,6 @@ async function writeContents(content) {
 async function main() {
   const source = core.getInput('source');
 
-  core.debug(`Reading from ${source}`);
-
   const content = await getContents();
 
   const [plucked] = await gqlPluckFromCodeString(
@@ -31,7 +29,11 @@ async function main() {
   );
 
   const output = await writeContents(plucked.body);
+
+  core.debug(`Setting filepath to ${output}`);
   core.setOutput('filepath', output);
+
+  core.debug(`Setting filedir to ${dirname(output)}`);
   core.setOutput('filedir', dirname(output));
 }
 
