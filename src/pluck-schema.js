@@ -2,7 +2,7 @@ const fs = require('fs').promises;
 const { gqlPluckFromCodeString } = require('@graphql-tools/graphql-tag-pluck');
 const { mergeTypeDefs } = require('@graphql-tools/merge');
 const { glob } = require('glob');
-const { asyncMap, asyncFilter, asyncFlow } = require('fp-async-utils');
+const { asyncMap: map, asyncFilter: filter, asyncFlow: flow } = require('fp-async-utils');
 const { print } = require('graphql');
 
 /**
@@ -57,11 +57,11 @@ async function extractSchemaString(schemaDocumentNode) {
   return print(schemaDocumentNode);
 }
 
-const pluckSchema = asyncFlow(
+const pluckSchema = flow(
   getFilepaths,
-  asyncMap(getContent),
-  asyncMap(pluckGQL),
-  asyncFilter(Boolean),
+  map(getContent),
+  map(pluckGQL),
+  filter(Boolean),
   mergeGql,
   extractSchemaString
 );
