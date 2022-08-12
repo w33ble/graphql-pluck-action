@@ -62211,7 +62211,6 @@ const pluckSchema = __webpack_require__(891);
 async function main() {
   const source = core.getInput('source');
   const schema = await pluckSchema(source);
-  console.log(schema);
 
   const output = core.getInput('output');
   await fs.writeFile(core.getInput('output'), schema);
@@ -81073,8 +81072,9 @@ const fs = __webpack_require__(747).promises;
 const { gqlPluckFromCodeString } = __webpack_require__(680);
 const { mergeTypeDefs } = __webpack_require__(390);
 const { glob } = __webpack_require__(120);
-const { asyncMap, asyncFilter, asyncFlow } = __webpack_require__(564);
+const { asyncMap: map, asyncFilter: filter, asyncFlow: flow } = __webpack_require__(564);
 const { print } = __webpack_require__(232);
+
 /**
  * @param {string} source
  * @returns {Promise<string[]>}
@@ -81127,11 +81127,11 @@ async function extractSchemaString(schemaDocumentNode) {
   return print(schemaDocumentNode);
 }
 
-const pluckSchema = asyncFlow(
+const pluckSchema = flow(
   getFilepaths,
-  asyncMap(getContent),
-  asyncMap(pluckGQL),
-  asyncFilter(Boolean),
+  map(getContent),
+  map(pluckGQL),
+  filter(Boolean),
   mergeGql,
   extractSchemaString
 );
