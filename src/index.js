@@ -66,7 +66,8 @@ async function main() {
   await asyncPipe(
     core.getInput('source'),
     getFilepaths,
-    asyncMap(getContent, pluckGQL),
+    asyncMap(getContent),
+    asyncMap(pluckGQL),
     mergeGql,
     writeSchemaToOutput
   );
