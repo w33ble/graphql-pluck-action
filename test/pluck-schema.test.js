@@ -16,4 +16,11 @@ describe('pluck-schema', () => {
     const areQueriesMerged = result.match(/type Query/g).length === 1;
     expect(includesQuery1 && includesQuery2 && areQueriesMerged).toBe(true);
   });
+
+  // https://github.com/apollographql/federation/issues/1875
+  it('handles query: Query bug in federation 2', async () => {
+    const result = await pluckSchema('test/schema-federation-2/**/*.js');
+    const doesNotIncludeQueryQueryInSchema1 = result.match(/query: Query/g) === null;
+    expect(doesNotIncludeQueryQueryInSchema1).toBe(true);
+  });
 });
