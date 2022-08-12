@@ -62117,7 +62117,7 @@ async function getContent(filePath) {
  */
 async function pluckGQL({ filePath, content }) {
   const [plucked] = await gqlPluckFromCodeString(filePath, content);
-  return plucked.body;
+  return plucked && plucked.body;
 }
 
 /**
