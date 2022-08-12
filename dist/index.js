@@ -62147,7 +62147,7 @@ async function main() {
     asyncMap(getContent, pluckGQL),
     mergeGql,
     writeSchemaToOutput
-  )();
+  );
 
   const output = core.getInput('output');
 
