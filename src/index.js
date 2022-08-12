@@ -2,33 +2,75 @@ const fs = require('fs').promises;
 const { dirname } = require('path');
 const core = require('@actions/core');
 const { gqlPluckFromCodeString } = require('@graphql-tools/graphql-tag-pluck');
+const { mergeTypeDefs } = require('@graphql-tools/merge');
+const { glob } = require('glob');
+const { asyncPipe, asyncMap } = require('fp-async-utils');
 
-async function getContents() {
-  const source = core.getInput('source');
-  core.debug(`Reading from file ${source}`);
-
-  return fs.readFile(source, 'utf8');
+/**
+ * @param {string} source
+ * @returns {Promise<string[]>}
+ */
+async function getFilepaths(source) {
+  return new Promise((resolve, reject) => {
+    glob(source, { nonull: true }, (err, filePaths) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(filePaths);
+      }
+    });
+  });
 }
 
-async function writeContents(content) {
+/**
+ * @param {string} filePath
+ * @returns {Promise<{filePath: string, content: string}>}
+ */
+async function getContent(filePath) {
+  const content = await fs.readFile(filePath, 'utf8');
+  return { filePath, content };
+}
+
+/**
+ *
+ * @param {{filePath: string, content: string}} param0
+ * @returns {Promise<string>}
+ */
+async function pluckGQL({ filePath, content }) {
+  const [plucked] = await gqlPluckFromCodeString(filePath, content);
+  return plucked.body;
+}
+
+/**
+ * @param {string[]} schemas
+ * @returns {Promise<string>}
+ */
+async function mergeGql(schemas) {
+  return mergeTypeDefs(schemas);
+}
+
+/**
+ *
+ * @param {string} schema
+ * @returns {Promise<void>}
+ */
+async function writeSchemaToOutput(schema) {
   const output = core.getInput('output');
   core.info(`Writing to file ${output}`);
-
-  await fs.writeFile(output, content);
-  return output;
+  console.log(schema);
+  await fs.writeFile(output, schema);
 }
 
 async function main() {
-  const source = core.getInput('source');
+  await asyncPipe(
+    core.getInput('source'),
+    getFilepaths,
+    asyncMap(getContent, pluckGQL),
+    mergeGql,
+    writeSchemaToOutput
+  )();
 
-  const content = await getContents();
-
-  const [plucked] = await gqlPluckFromCodeString(
-    source, // this parameter is required to detect file type
-    content
-  );
-
-  const output = await writeContents(plucked.body);
+  const output = core.getInput('output');
 
   core.debug(`Setting filepath to ${output}`);
   core.setOutput('filepath', output);

@@ -23,6 +23,9 @@
   "dependencies": {
     "@actions/core": "^1.7.0",
     "@graphql-tools/graphql-tag-pluck": "^7.2.6",
+    "@graphql-tools/merge": "^8.3.3",
+    "fp-async-utils": "^2.0.1",
+    "glob": "^8.0.3",
     "graphql": "^16.4.0"
   },
   "devDependencies": {
