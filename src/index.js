@@ -46,6 +46,7 @@ async function pluckGQL({ filePath, content }) {
  * @returns {Promise<string>}
  */
 async function mergeGql(schemas) {
+  console.log(schemas);
   return mergeTypeDefs(schemas);
 }
 
