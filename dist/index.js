@@ -522,7 +522,7 @@ exports.versionInfo = exports.version = void 0;
 /**
  * A string containing the version of the GraphQL.js library
  */
-const version = '16.4.0';
+const version = '16.5.0';
 /**
  * An object containing the components of the GraphQL.js version string
  */
@@ -530,7 +530,7 @@ const version = '16.4.0';
 exports.version = version;
 const versionInfo = Object.freeze({
   major: 16,
-  minor: 4,
+  minor: 5,
   patch: 0,
   preReleaseTag: null,
 });
@@ -558,7 +558,7 @@ var _location = __webpack_require__(683);
 
 var _printLocation = __webpack_require__(234);
 
-function toNormalizedArgs(args) {
+function toNormalizedOptions(args) {
   const firstArg = args[0];
 
   if (firstArg == null || 'kind' in firstArg || 'length' in firstArg) {
@@ -625,13 +625,13 @@ class GraphQLError extends Error {
    */
 
   /**
-   * @deprecated Please use the `GraphQLErrorArgs` constructor overload instead.
+   * @deprecated Please use the `GraphQLErrorOptions` constructor overload instead.
    */
   constructor(message, ...rawArgs) {
     var _this$nodes, _nodeLocations$, _ref;
 
     const { nodes, source, positions, path, originalError, extensions } =
-      toNormalizedArgs(rawArgs);
+      toNormalizedOptions(rawArgs);
     super(message);
     this.name = 'GraphQLError';
     this.path = path !== null && path !== void 0 ? path : undefined;
@@ -14547,7 +14547,7 @@ var _FieldsOnCorrectTypeRule = __webpack_require__(269);
 
 var _FragmentsOnCompositeTypesRule = __webpack_require__(80);
 
-var _KnownArgumentNamesRule = __webpack_require__(891);
+var _KnownArgumentNamesRule = __webpack_require__(457);
 
 var _KnownDirectivesRule = __webpack_require__(719);
 
@@ -26395,7 +26395,133 @@ function buildMatchMemberExpression(match, allowPartial) {
 /* 454 */,
 /* 455 */,
 /* 456 */,
-/* 457 */,
+/* 457 */
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.KnownArgumentNamesOnDirectivesRule = KnownArgumentNamesOnDirectivesRule;
+exports.KnownArgumentNamesRule = KnownArgumentNamesRule;
+
+var _didYouMean = __webpack_require__(868);
+
+var _suggestionList = __webpack_require__(150);
+
+var _GraphQLError = __webpack_require__(26);
+
+var _kinds = __webpack_require__(326);
+
+var _directives = __webpack_require__(134);
+
+/**
+ * Known argument names
+ *
+ * A GraphQL field is only valid if all supplied arguments are defined by
+ * that field.
+ *
+ * See https://spec.graphql.org/draft/#sec-Argument-Names
+ * See https://spec.graphql.org/draft/#sec-Directives-Are-In-Valid-Locations
+ */
+function KnownArgumentNamesRule(context) {
+  return {
+    // eslint-disable-next-line new-cap
+    ...KnownArgumentNamesOnDirectivesRule(context),
+
+    Argument(argNode) {
+      const argDef = context.getArgument();
+      const fieldDef = context.getFieldDef();
+      const parentType = context.getParentType();
+
+      if (!argDef && fieldDef && parentType) {
+        const argName = argNode.name.value;
+        const knownArgsNames = fieldDef.args.map((arg) => arg.name);
+        const suggestions = (0, _suggestionList.suggestionList)(
+          argName,
+          knownArgsNames,
+        );
+        context.reportError(
+          new _GraphQLError.GraphQLError(
+            `Unknown argument "${argName}" on field "${parentType.name}.${fieldDef.name}".` +
+              (0, _didYouMean.didYouMean)(suggestions),
+            {
+              nodes: argNode,
+            },
+          ),
+        );
+      }
+    },
+  };
+}
+/**
+ * @internal
+ */
+
+function KnownArgumentNamesOnDirectivesRule(context) {
+  const directiveArgs = Object.create(null);
+  const schema = context.getSchema();
+  const definedDirectives = schema
+    ? schema.getDirectives()
+    : _directives.specifiedDirectives;
+
+  for (const directive of definedDirectives) {
+    directiveArgs[directive.name] = directive.args.map((arg) => arg.name);
+  }
+
+  const astDefinitions = context.getDocument().definitions;
+
+  for (const def of astDefinitions) {
+    if (def.kind === _kinds.Kind.DIRECTIVE_DEFINITION) {
+      var _def$arguments;
+
+      // FIXME: https://github.com/graphql/graphql-js/issues/2203
+
+      /* c8 ignore next */
+      const argsNodes =
+        (_def$arguments = def.arguments) !== null && _def$arguments !== void 0
+          ? _def$arguments
+          : [];
+      directiveArgs[def.name.value] = argsNodes.map((arg) => arg.name.value);
+    }
+  }
+
+  return {
+    Directive(directiveNode) {
+      const directiveName = directiveNode.name.value;
+      const knownArgs = directiveArgs[directiveName];
+
+      if (directiveNode.arguments && knownArgs) {
+        for (const argNode of directiveNode.arguments) {
+          const argName = argNode.name.value;
+
+          if (!knownArgs.includes(argName)) {
+            const suggestions = (0, _suggestionList.suggestionList)(
+              argName,
+              knownArgs,
+            );
+            context.reportError(
+              new _GraphQLError.GraphQLError(
+                `Unknown argument "${argName}" on directive "@${directiveName}".` +
+                  (0, _didYouMean.didYouMean)(suggestions),
+                {
+                  nodes: argNode,
+                },
+              ),
+            );
+          }
+        }
+      }
+
+      return false;
+    },
+  };
+}
+
+
+/***/ }),
 /* 458 */
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
@@ -32101,7 +32227,7 @@ var _FieldsOnCorrectTypeRule = __webpack_require__(269);
 
 var _FragmentsOnCompositeTypesRule = __webpack_require__(80);
 
-var _KnownArgumentNamesRule = __webpack_require__(891);
+var _KnownArgumentNamesRule = __webpack_require__(457);
 
 var _KnownDirectivesRule = __webpack_require__(719);
 
@@ -62080,87 +62206,14 @@ exports.correctASTNodes = correctASTNodes;
 const fs = __webpack_require__(747).promises;
 const { dirname } = __webpack_require__(622);
 const core = __webpack_require__(470);
-const { gqlPluckFromCodeString } = __webpack_require__(680);
-const { mergeTypeDefs } = __webpack_require__(390);
-const { glob } = __webpack_require__(120);
-const { asyncPipe, asyncMap, asyncFilter } = __webpack_require__(564);
-
-/**
- * @param {string} source
- * @returns {Promise<string[]>}
- */
-async function getFilepaths(source) {
-  return new Promise((resolve, reject) => {
-    glob(source, { nonull: true }, (err, filePaths) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(filePaths);
-      }
-    });
-  });
-}
-
-/**
- * @param {string} filePath
- * @returns {Promise<{filePath: string, content: string}>}
- */
-async function getContent(filePath) {
-  const content = await fs.readFile(filePath, 'utf8');
-  return { filePath, content };
-}
-
-/**
- *
- * @param {{filePath: string, content: string}} param0
- * @returns {Promise<string>}
- */
-async function pluckGQL({ filePath, content }) {
-  const [plucked] = await gqlPluckFromCodeString(filePath, content);
-  return plucked && plucked.body;
-}
-
-/**
- * @param {string[]} schemas
- * @returns {Promise<string>}
- */
-async function mergeGql(schemas) {
-  return mergeTypeDefs(schemas);
-}
-
-/**
- *
- * @param {DocumentNode} schemaDocumentNode
- * @returns {Promise<string>}
- */
-async function extractSchemaString(schemaDocumentNode) {
-  return schemaDocumentNode.loc.source.body;
-}
-
-/**
- *
- * @param {string} schema
- * @returns {Promise<void>}
- */
-async function writeSchemaToOutput(schema) {
-  const output = core.getInput('output');
-  core.info(`Writing to file ${output}`);
-  await fs.writeFile(output, schema);
-}
+const pluckSchema = __webpack_require__(891);
 
 async function main() {
-  await asyncPipe(
-    core.getInput('source'),
-    getFilepaths,
-    asyncMap(getContent),
-    asyncMap(pluckGQL),
-    asyncFilter(Boolean),
-    mergeGql,
-    extractSchemaString,
-    writeSchemaToOutput
-  );
+  const source = core.getInput('source');
+  const schema = await pluckSchema(source);
 
   const output = core.getInput('output');
+  await fs.writeFile(core.getInput('output'), schema);
 
   core.debug(`Setting filepath to ${output}`);
   core.setOutput('filepath', output);
@@ -81013,129 +81066,76 @@ function isFirstInContext(printStack, {
 /* 889 */,
 /* 890 */,
 /* 891 */
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
+/***/ (function(module, __unusedexports, __webpack_require__) {
 
-"use strict";
-
-
-Object.defineProperty(exports, '__esModule', {
-  value: true,
-});
-exports.KnownArgumentNamesOnDirectivesRule = KnownArgumentNamesOnDirectivesRule;
-exports.KnownArgumentNamesRule = KnownArgumentNamesRule;
-
-var _didYouMean = __webpack_require__(868);
-
-var _suggestionList = __webpack_require__(150);
-
-var _GraphQLError = __webpack_require__(26);
-
-var _kinds = __webpack_require__(326);
-
-var _directives = __webpack_require__(134);
+const fs = __webpack_require__(747).promises;
+const { gqlPluckFromCodeString } = __webpack_require__(680);
+const { mergeTypeDefs } = __webpack_require__(390);
+const { glob } = __webpack_require__(120);
+const { asyncMap, asyncFilter, asyncFlow } = __webpack_require__(564);
+const { print } = __webpack_require__(232);
+/**
+ * @param {string} source
+ * @returns {Promise<string[]>}
+ */
+async function getFilepaths(source) {
+  return new Promise((resolve, reject) => {
+    glob(source, { nonull: true }, (err, filePaths) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(filePaths);
+      }
+    });
+  });
+}
 
 /**
- * Known argument names
- *
- * A GraphQL field is only valid if all supplied arguments are defined by
- * that field.
- *
- * See https://spec.graphql.org/draft/#sec-Argument-Names
- * See https://spec.graphql.org/draft/#sec-Directives-Are-In-Valid-Locations
+ * @param {string} filePath
+ * @returns {Promise<{filePath: string, content: string}>}
  */
-function KnownArgumentNamesRule(context) {
-  return {
-    // eslint-disable-next-line new-cap
-    ...KnownArgumentNamesOnDirectivesRule(context),
-
-    Argument(argNode) {
-      const argDef = context.getArgument();
-      const fieldDef = context.getFieldDef();
-      const parentType = context.getParentType();
-
-      if (!argDef && fieldDef && parentType) {
-        const argName = argNode.name.value;
-        const knownArgsNames = fieldDef.args.map((arg) => arg.name);
-        const suggestions = (0, _suggestionList.suggestionList)(
-          argName,
-          knownArgsNames,
-        );
-        context.reportError(
-          new _GraphQLError.GraphQLError(
-            `Unknown argument "${argName}" on field "${parentType.name}.${fieldDef.name}".` +
-              (0, _didYouMean.didYouMean)(suggestions),
-            {
-              nodes: argNode,
-            },
-          ),
-        );
-      }
-    },
-  };
+async function getContent(filePath) {
+  const content = await fs.readFile(filePath, 'utf8');
+  return { filePath, content };
 }
+
 /**
- * @internal
+ *
+ * @param {{filePath: string, content: string}} param0
+ * @returns {Promise<string>}
  */
-
-function KnownArgumentNamesOnDirectivesRule(context) {
-  const directiveArgs = Object.create(null);
-  const schema = context.getSchema();
-  const definedDirectives = schema
-    ? schema.getDirectives()
-    : _directives.specifiedDirectives;
-
-  for (const directive of definedDirectives) {
-    directiveArgs[directive.name] = directive.args.map((arg) => arg.name);
-  }
-
-  const astDefinitions = context.getDocument().definitions;
-
-  for (const def of astDefinitions) {
-    if (def.kind === _kinds.Kind.DIRECTIVE_DEFINITION) {
-      var _def$arguments;
-
-      // FIXME: https://github.com/graphql/graphql-js/issues/2203
-
-      /* c8 ignore next */
-      const argsNodes =
-        (_def$arguments = def.arguments) !== null && _def$arguments !== void 0
-          ? _def$arguments
-          : [];
-      directiveArgs[def.name.value] = argsNodes.map((arg) => arg.name.value);
-    }
-  }
-
-  return {
-    Directive(directiveNode) {
-      const directiveName = directiveNode.name.value;
-      const knownArgs = directiveArgs[directiveName];
-
-      if (directiveNode.arguments && knownArgs) {
-        for (const argNode of directiveNode.arguments) {
-          const argName = argNode.name.value;
-
-          if (!knownArgs.includes(argName)) {
-            const suggestions = (0, _suggestionList.suggestionList)(
-              argName,
-              knownArgs,
-            );
-            context.reportError(
-              new _GraphQLError.GraphQLError(
-                `Unknown argument "${argName}" on directive "@${directiveName}".` +
-                  (0, _didYouMean.didYouMean)(suggestions),
-                {
-                  nodes: argNode,
-                },
-              ),
-            );
-          }
-        }
-      }
-
-      return false;
-    },
-  };
+async function pluckGQL({ filePath, content }) {
+  const [plucked] = await gqlPluckFromCodeString(filePath, content);
+  return plucked && plucked.body;
 }
+
+/**
+ * @param {string[]} schemas
+ * @returns {Promise<string>}
+ */
+async function mergeGql(schemas) {
+  return mergeTypeDefs(schemas);
+}
+
+/**
+ *
+ * @param {DocumentNode} schemaDocumentNode
+ * @returns {Promise<string>}
+ */
+async function extractSchemaString(schemaDocumentNode) {
+  return print(schemaDocumentNode);
+}
+
+const pluckSchema = asyncFlow(
+  getFilepaths,
+  asyncMap(getContent),
+  asyncMap(pluckGQL),
+  asyncFilter(Boolean),
+  mergeGql,
+  extractSchemaString
+);
+
+module.exports = pluckSchema;
 
 
 /***/ }),
