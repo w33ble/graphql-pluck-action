@@ -46,8 +46,16 @@ async function pluckGQL({ filePath, content }) {
  * @returns {Promise<string>}
  */
 async function mergeGql(schemas) {
-  console.log(schemas);
   return mergeTypeDefs(schemas);
+}
+
+/**
+ *
+ * @param {DocumentNode} schemaDocumentNode
+ * @returns {Promise<string>}
+ */
+async function extractSchemaString(schemaDocumentNode) {
+  return schemaDocumentNode.loc.source.body;
 }
 
 /**
@@ -58,7 +66,6 @@ async function mergeGql(schemas) {
 async function writeSchemaToOutput(schema) {
   const output = core.getInput('output');
   core.info(`Writing to file ${output}`);
-  console.log(schema);
   await fs.writeFile(output, schema);
 }
 
@@ -70,6 +77,7 @@ async function main() {
     asyncMap(pluckGQL),
     asyncFilter(Boolean),
     mergeGql,
+    extractSchemaString,
     writeSchemaToOutput
   );
 
