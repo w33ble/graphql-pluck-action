@@ -81105,13 +81105,19 @@ async function extractSchemaString(schemaDocumentNode) {
   return print(schemaDocumentNode);
 }
 
+// https://github.com/apollographql/federation/issues/1875
+async function handleQueryQueryFederation2Bug(schema) {
+  return schema.replace('query: Query', '');
+}
+
 const pluckSchema = flow(
   getFilepaths,
   map(getContent),
   map(pluckGQL),
   filter(Boolean),
   mergeGql,
-  extractSchemaString
+  extractSchemaString,
+  handleQueryQueryFederation2Bug
 );
 
 module.exports = pluckSchema;
