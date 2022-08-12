@@ -62146,8 +62146,8 @@ async function main() {
     core.getInput('source'),
     getFilepaths,
     asyncMap(getContent),
-    asyncFilter(Boolean),
     asyncMap(pluckGQL),
+    asyncFilter(Boolean),
     mergeGql,
     writeSchemaToOutput
   );
