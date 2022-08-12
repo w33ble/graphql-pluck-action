@@ -38,6 +38,7 @@ async function getContent(filePath) {
  */
 async function pluckGQL({ filePath, content }) {
   const [plucked] = await gqlPluckFromCodeString(filePath, content);
+  console.log(plucked);
   return plucked.body;
 }
 
