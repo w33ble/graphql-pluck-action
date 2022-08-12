@@ -62083,7 +62083,7 @@ const core = __webpack_require__(470);
 const { gqlPluckFromCodeString } = __webpack_require__(680);
 const { mergeTypeDefs } = __webpack_require__(390);
 const { glob } = __webpack_require__(120);
-const { asyncPipe, asyncMap } = __webpack_require__(564);
+const { asyncPipe, asyncMap, asyncFilter } = __webpack_require__(564);
 
 /**
  * @param {string} source
@@ -62117,7 +62117,6 @@ async function getContent(filePath) {
  */
 async function pluckGQL({ filePath, content }) {
   const [plucked] = await gqlPluckFromCodeString(filePath, content);
-  console.log(plucked);
   return plucked.body;
 }
 
@@ -62147,6 +62146,7 @@ async function main() {
     core.getInput('source'),
     getFilepaths,
     asyncMap(getContent),
+    asyncFilter(Boolean),
     asyncMap(pluckGQL),
     mergeGql,
     writeSchemaToOutput

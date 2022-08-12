@@ -4,7 +4,7 @@ const core = require('@actions/core');
 const { gqlPluckFromCodeString } = require('@graphql-tools/graphql-tag-pluck');
 const { mergeTypeDefs } = require('@graphql-tools/merge');
 const { glob } = require('glob');
-const { asyncPipe, asyncMap } = require('fp-async-utils');
+const { asyncPipe, asyncMap, asyncFilter } = require('fp-async-utils');
 
 /**
  * @param {string} source
@@ -38,7 +38,6 @@ async function getContent(filePath) {
  */
 async function pluckGQL({ filePath, content }) {
   const [plucked] = await gqlPluckFromCodeString(filePath, content);
-  console.log(plucked);
   return plucked.body;
 }
 
@@ -68,6 +67,7 @@ async function main() {
     core.getInput('source'),
     getFilepaths,
     asyncMap(getContent),
+    asyncFilter(Boolean),
     asyncMap(pluckGQL),
     mergeGql,
     writeSchemaToOutput
