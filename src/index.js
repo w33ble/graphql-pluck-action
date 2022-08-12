@@ -6,6 +6,7 @@ const pluckSchema = require('./pluck-schema');
 async function main() {
   const source = core.getInput('source');
   const schema = await pluckSchema(source);
+  console.log(schema);
 
   const output = core.getInput('output');
   await fs.writeFile(core.getInput('output'), schema);

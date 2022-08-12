@@ -62211,6 +62211,7 @@ const pluckSchema = __webpack_require__(891);
 async function main() {
   const source = core.getInput('source');
   const schema = await pluckSchema(source);
+  console.log(schema);
 
   const output = core.getInput('output');
   await fs.writeFile(core.getInput('output'), schema);
