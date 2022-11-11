@@ -81112,14 +81112,28 @@ async function handleQueryQueryFederation2Bug(schema) {
 
 async function removeEmptySchemaContent(schema) {
   const lines = schema.match(/[^\r\n]+/g);
-  const schemaTokenIndex = lines.findIndex((line) => line.includes('schema {'));
 
-  const schemaContentEmpty = schemaTokenIndex && lines[schemaTokenIndex + 1] === '  ';
+  const schemaTokenIndex = lines.findIndex((line) => line.includes('schema {'));
+  const schemaContentEmpty = schemaTokenIndex !== -1 && lines[schemaTokenIndex + 1] === '  ';
   if (schemaContentEmpty) {
     lines.splice(schemaTokenIndex, 3);
     return lines.join('\n');
   }
 
+  const fed2SchemaTokenIndex = lines.findIndex((line) => line.includes('extend schema @link('));
+  const fed2SchemaContentEmpty =
+    fed2SchemaTokenIndex !== -1 && lines[fed2SchemaTokenIndex + 1] === '  ';
+  if (fed2SchemaContentEmpty) {
+    lines.splice(fed2SchemaTokenIndex + 1, 2);
+    return lines
+      .map((line, i) => {
+        if (i === fed2SchemaTokenIndex) {
+          return line.replace('{', '');
+        }
+        return line;
+      })
+      .join('\n');
+  }
   return schema;
 }
 
