@@ -30,4 +30,11 @@ describe('pluck-schema', () => {
     const noSchemaWithEmptyBrackets = result.match(/schema/g) === null;
     expect(noMutations && noSchemaWithEmptyBrackets).toBe(true);
   });
+  it('removes empty "schema <..> { }" when "query: Query" is removed with federation 2 composition', async () => {
+    const result = await pluckSchema('test/schema-federation-2_no_mutation/**/*.js');
+    const lines = result.match(/[^\r\n]+/g);
+    const index = lines.findIndex((line) => line.includes('extend schema @link('));
+    const hasBrackets = lines[index].includes('{');
+    expect(hasBrackets).toBe(false);
+  });
 });
