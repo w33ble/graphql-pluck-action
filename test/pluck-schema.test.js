@@ -23,4 +23,11 @@ describe('pluck-schema', () => {
     const doesNotIncludeQueryQueryInSchema1 = result.match(/query: Query/g) === null;
     expect(doesNotIncludeQueryQueryInSchema1).toBe(true);
   });
+
+  it('removes empty "schema { }" when "query: Query" is removed', async () => {
+    const result = await pluckSchema('test/schema/schema1.js');
+    const noMutations = result.match(/mutation/g) === null;
+    const noSchemaWithEmptyBrackets = result.match(/schema/g) === null;
+    expect(noMutations && noSchemaWithEmptyBrackets).toBe(true);
+  });
 });

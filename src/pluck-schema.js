@@ -40,6 +40,19 @@ async function handleQueryQueryFederation2Bug(schema) {
   return schema.replace('query: Query', '');
 }
 
+async function removeEmptySchemaContent(schema) {
+  const lines = schema.match(/[^\r\n]+/g);
+  const schemaTokenIndex = lines.findIndex((line) => line.includes('schema {'));
+
+  const schemaContentEmpty = schemaTokenIndex && lines[schemaTokenIndex + 1] === '  ';
+  if (schemaContentEmpty) {
+    lines.splice(schemaTokenIndex, 3);
+    return lines.join('\n');
+  }
+
+  return schema;
+}
+
 const pluckSchema = flow(
   getFilepaths,
   map(getContent),
@@ -47,7 +60,8 @@ const pluckSchema = flow(
   filter(Boolean),
   mergeGql,
   extractSchemaString,
-  handleQueryQueryFederation2Bug
+  handleQueryQueryFederation2Bug,
+  removeEmptySchemaContent
 );
 
 module.exports = pluckSchema;
