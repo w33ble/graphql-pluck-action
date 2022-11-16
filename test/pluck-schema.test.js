@@ -1,6 +1,10 @@
 /* eslint-disable no-undef */
 const pluckSchema = require('../src/pluck-schema');
 
+function getLines(str) {
+  return str.match(/[^\r\n]+/g);
+}
+
 describe('pluck-schema', () => {
   it('works with single files', async () => {
     const result = await pluckSchema('test/schema/schema1.js');
@@ -32,9 +36,18 @@ describe('pluck-schema', () => {
   });
   it('removes empty "schema <..> { }" when "query: Query" is removed with federation 2 composition', async () => {
     const result = await pluckSchema('test/schema-federation-2_no_mutation/**/*.js');
-    const lines = result.match(/[^\r\n]+/g);
+    const lines = getLines(result);
     const index = lines.findIndex((line) => line.includes('extend schema @link('));
     const hasBrackets = lines[index].includes('{');
     expect(hasBrackets).toBe(false);
+  });
+
+  it('doesnt leave trailing brackets', async () => {
+    const result = await pluckSchema('test/schema/**/*.js');
+    const lines = getLines(result);
+    const penultimateLine = lines[lines.length - 2].trim();
+    const lastLine = lines[lines.length - 1].trim();
+    const bothLinesAreBrackets = penultimateLine === '}' && lastLine === '}';
+    expect(bothLinesAreBrackets).not.toBe(true);
   });
 });
