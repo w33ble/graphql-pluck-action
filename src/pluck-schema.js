@@ -44,7 +44,10 @@ async function removeEmptySchemaContent(schema) {
   const lines = schema.match(/[^\r\n]+/g);
 
   const schemaTokenIndex = lines.findIndex((line) => line.includes('schema {'));
-  const schemaContentEmpty = schemaTokenIndex !== -1 && lines[schemaTokenIndex + 1] === '  ';
+  const schemaContentEmpty =
+    schemaTokenIndex !== -1 &&
+    lines[schemaTokenIndex + 1].trim() === '' &&
+    lines[schemaTokenIndex + 2].trim() === '}';
   if (schemaContentEmpty) {
     lines.splice(schemaTokenIndex, 3);
     return lines.join('\n');
