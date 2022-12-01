@@ -42,12 +42,21 @@ describe('pluck-schema', () => {
     expect(hasBrackets).toBe(false);
   });
 
-  it('doesnt leave trailing brackets', async () => {
+  it('doesnt leave trailing brackets with federation 1 schema', async () => {
     const result = await pluckSchema('test/schema/**/*.js');
     const lines = getLines(result);
     const penultimateLine = lines[lines.length - 2].trim();
     const lastLine = lines[lines.length - 1].trim();
     const bothLinesAreBrackets = penultimateLine === '}' && lastLine === '}';
     expect(bothLinesAreBrackets).not.toBe(true);
+  });
+
+  it('doesnt leave trailing brackets with federation 2 schema', async () => {
+    const result = await pluckSchema('test/schema-federation-2/**/*.js');
+    const lines = getLines(result);
+    const index = lines.findIndex((line) => line.includes('extend schema @link('));
+    const nextLine = lines[index + 1].trim();
+    const nextLineIsNotABracket = nextLine === '}';
+    expect(nextLineIsNotABracket).not.toBe(true);
   });
 });
