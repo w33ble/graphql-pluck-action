@@ -81125,7 +81125,9 @@ async function removeEmptySchemaContent(schema) {
 
   const fed2SchemaTokenIndex = lines.findIndex((line) => line.includes('extend schema @link('));
   const fed2SchemaContentEmpty =
-    fed2SchemaTokenIndex !== -1 && lines[fed2SchemaTokenIndex + 1] === '  ';
+    fed2SchemaTokenIndex !== -1 &&
+    lines[fed2SchemaTokenIndex + 1].trim() === '' &&
+    lines[fed2SchemaTokenIndex + 2].trim() === '}';
   if (fed2SchemaContentEmpty) {
     lines.splice(fed2SchemaTokenIndex + 1, 2);
     return lines
