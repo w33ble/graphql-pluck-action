@@ -40,3 +40,7 @@ jobs:
           source: 'src/index.ts'
           output: 'src/schema.graphql'
 ```
+
+## Releases
+
+To build and release a new version of this repo, you just need to run `npm version <major|minor|patch>`. Then push the code and tag with `git push && git push --tags`. 
