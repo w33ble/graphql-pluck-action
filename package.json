@@ -1,6 +1,6 @@
 {
   "name": "graphql-pluck-action",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "description": "Extract GraphQL schema from graphql-tag template literals",
   "private": true,
   "main": "src/index.js",
