@@ -1,0 +1,11 @@
+type TheInput2 {
+  someField: String!
+}
+
+type Query {
+  query2(input: TheInput2): String
+}
+
+type Mutation {
+  mutation2(input: TheInput2): String
+}

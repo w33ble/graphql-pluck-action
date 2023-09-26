@@ -59,4 +59,12 @@ describe('pluck-schema', () => {
     const nextLineIsNotABracket = nextLine === '}';
     expect(nextLineIsNotABracket).not.toBe(true);
   });
+
+  it('plucks from .graphql files', async () => {
+    const result = await pluckSchema('test/graphql-files/**/*.graphql');
+    const includesQuery1 = result.match(/query1/g).length === 1;
+    const includesQuery2 = result.match(/query2/g).length === 1;
+    const areQueriesMerged = result.match(/type Query/g).length === 1;
+    expect(includesQuery1 && includesQuery2 && areQueriesMerged).toBe(true);
+  });
 });

@@ -23,7 +23,17 @@ async function getContent(filePath) {
 }
 
 async function pluckGQL({ filePath, content }) {
-  const [plucked] = await gqlPluckFromCodeString(filePath, content);
+  let _content = content;
+  let _filePath = filePath;
+
+  // gqlPluckFromCodeString doesn't parse .graphql files
+  // but we can inject the graphql into some JavaScript code
+  // and tell the plucker that the file is a .js file
+  if (filePath.endsWith('.graphql')) {
+    _content = 'var gql;\n gql`\n' + content + '\n`;';
+    _filePath = filePath + '.js';
+  }
+  const [plucked] = await gqlPluckFromCodeString(_filePath, _content);
   return plucked && plucked.body;
 }
 
